@@ -12,11 +12,11 @@ def download_file_from_drive(url, output_name):
     except Exception as e:
         st.write(f"Error downloading {output_name}: {e}")
 
-# Google Drive file links for 'reconstructed_rnn_long.pkl' and 'rnn_autoencoder_model.keras'
-url_rnn_data = 'https://drive.usercontent.google.com/download?id=17Mp19o6-dvUNv0DGS5IVR-t-g5xNIlX4&export=download&authuser=0&confirm=t&uuid=823fbc88-e01c-4b61-824d-f817acd82e1c&at=AEz70l7zLolbUOAQ_KBwBAMHZ7sH:1742551729804'  # Replace with actual file ID for 'reconstructed_rnn_long.pkl'
+# Google Drive file links for 'reconstructed_rnn_long.pkl' and 'rnn_autoencoder_model.keras'25517290804
+url_rnn_data = 'https://drive.google.com/file/d/17Mp19o6-dvUNv0DGS5IVR-t-g5xNIlX4/view?usp=sharing'  # Replace with actual file ID for 'reconstructed_rnn_long.pkl'
 output_rnn_data = 'reconstructed_rnn_long.pkl'
 
-url_rnn_model = 'https://drive.usercontent.google.com/download?id=1--e19kUVXNZ7HnV53Xbj1hXyJtg9_Iak&export=download&authuser=0&confirm=t&uuid=f5e372e0-1333-43b9-8532-d16a8627cd00&at=AEz70l4aBBiA5-H1y9PzEHH8RWZM:1742551676166'  # Replace with actual file ID for 'rnn_autoencoder_model.keras'
+url_rnn_model = 'https://drive.google.com/file/d/1--e19kUVXNZ7HnV53Xbj1hXyJtg9_Iak/view?usp=sharing'  # Replace with actual file ID for 'rnn_autoencoder_model.keras'
 output_rnn_model = 'rnn_autoencoder_model.keras'
 
 # Download the model and data
