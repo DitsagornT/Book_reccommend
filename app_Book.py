@@ -16,13 +16,13 @@ gdown.download(url_rnn_data, output_rnn_data, quiet=False)
 gdown.download(url_rnn_model, output_rnn_model, quiet=False)
 # Load the data and model
 try:
-    reconstructed_rnn_long = joblib.load(output_rnn_data)
+    reconstructed_rnn_long = tf.keras.models.load_model(output_rnn_data)
     st.write("Reconstructed data loaded successfully.")
 except Exception as e:
     st.write(f"Error loading reconstructed data: {e}")
 
 try:
-    rnn_autoencoder_model = load_model(output_rnn_model)
+    rnn_autoencoder_model = tf.keras.models.load_model(output_rnn_model)
     st.write("RNN Autoencoder model loaded successfully.")
 except Exception as e:
     st.write(f"Error loading RNN Autoencoder model: {e}")
