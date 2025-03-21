@@ -4,9 +4,12 @@ import pandas as pd
 import joblib
 from tensorflow.keras.models import load_model
 
-# Load the model and data
-reconstructed_rnn_long = joblib.load("reconstructed_rnn_long.pkl")
-rnn_autoencoder_model = load_model("rnn_autoencoder_model.keras")
+# Set the correct path to files in Google Drive
+drive_path = '/content/drive/MyDrive/project_final/'  # Path to your folder in Google Drive
+
+# Load the model and data from Google Drive
+reconstructed_rnn_long = joblib.load(drive_path + "reconstructed_rnn_long.pkl")
+rnn_autoencoder_model = load_model(drive_path + "rnn_autoencoder_model.keras")
 
 # Function to recommend books for RNN model
 def recommend_books_rnn(user_id, num_recommendations=5, threshold=5):
