@@ -13,10 +13,10 @@ def download_file_from_drive(url, output_name):
         st.write(f"Error downloading {output_name}: {e}")
 
 # Google Drive file links for 'reconstructed_rnn_long.pkl' and 'rnn_autoencoder_model.keras'
-url_rnn_data = 'https://drive.google.com/drive/folders/1w76RzDdyLeFsly9Ld5KWeDgbn_0liFIX?usp=drive_link'  # Replace with actual file ID for 'reconstructed_rnn_long.pkl'
+url_rnn_data = 'https://drive.google.com/file/d/17Mp19o6-dvUNv0DGS5IVR-t-g5xNIlX4/view?usp=drive_link'  # Replace with actual file ID for 'reconstructed_rnn_long.pkl'
 output_rnn_data = 'reconstructed_rnn_long.pkl'
 
-url_rnn_model = 'https://drive.google.com/drive/folders/1w76RzDdyLeFsly9Ld5KWeDgbn_0liFIX?usp=drive_link'  # Replace with actual file ID for 'rnn_autoencoder_model.keras'
+url_rnn_model = 'https://drive.google.com/file/d/1--e19kUVXNZ7HnV53Xbj1hXyJtg9_Iak/view?usp=drive_link'  # Replace with actual file ID for 'rnn_autoencoder_model.keras'
 output_rnn_model = 'rnn_autoencoder_model.keras'
 
 # Download the model and data
