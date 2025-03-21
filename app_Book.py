@@ -1,29 +1,30 @@
 import streamlit as st
 import pandas as pd
-import joblib
 import gdown
+import tensorflow as tf
 from tensorflow.keras.models import load_model
-import tensorflow as tf 
 
-# Google Drive file links for 'reconstructed_rnn_long.pkl' and 'rnn_autoencoder_model.keras'25517290804
-url_rnn_data = 'https://drive.google.com/file/d/17Mp19o6-dvUNv0DGS5IVR-t-g5xNIlX4/view?usp=sharing'  # Replace with actual file ID for 'reconstructed_rnn_long.pkl'
+# Google Drive file links for 'reconstructed_rnn_long.pkl' and 'rnn_autoencoder_model.keras'
+url_rnn_data = 'https://drive.google.com/uc?id=17Mp19o6-dvUNv0DGS5IVR-t-g5xNIlX4'  # Corrected URL for direct download
 output_rnn_data = 'reconstructed_rnn_long.pkl'
 
-url_rnn_model = 'https://drive.google.com/file/d/1--e19kUVXNZ7HnV53Xbj1hXyJtg9_Iak/view?usp=sharing'  # Replace with actual file ID for 'rnn_autoencoder_model.keras'
+url_rnn_model = 'https://drive.google.com/uc?id=1--e19kUVXNZ7HnV53Xbj1hXyJtg9_Iak'  # Corrected URL for direct download
 output_rnn_model = 'rnn_autoencoder_model.keras'
 
 # Download the model and data
 gdown.download(url_rnn_data, output_rnn_data, quiet=False)
 gdown.download(url_rnn_model, output_rnn_model, quiet=False)
-# Load the data and model
+
+# Load the reconstructed data (using pandas for .pkl)
 try:
-    reconstructed_rnn_long = tf.keras.models.load_model(output_rnn_data)
+    reconstructed_rnn_long = pd.read_pickle(output_rnn_data)
     st.write("Reconstructed data loaded successfully.")
 except Exception as e:
     st.write(f"Error loading reconstructed data: {e}")
 
+# Load the RNN Autoencoder model
 try:
-    rnn_autoencoder_model = tf.keras.models.load_model(output_rnn_model)
+    rnn_autoencoder_model = load_model(output_rnn_model)
     st.write("RNN Autoencoder model loaded successfully.")
 except Exception as e:
     st.write(f"Error loading RNN Autoencoder model: {e}")
