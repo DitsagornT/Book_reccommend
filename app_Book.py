@@ -42,7 +42,7 @@ def recommend_books_rnn(user_id, num_recommendations=5, threshold=5):
 # Streamlit user interface
 st.title('Book Recommendation System (RNN Autoencoder)')
 st.write('Enter a User ID to get book recommendations.')
-
+st.write(reconstructed_rnn_long.columns)
 user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 
 # Button to trigger recommendations
