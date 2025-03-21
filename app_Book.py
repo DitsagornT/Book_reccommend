@@ -1,33 +1,25 @@
 import streamlit as st
 import pandas as pd
 import gdown
-import tensorflow as tf
+import pickle
 from tensorflow.keras.models import load_model
 
-# Google Drive file links for 'reconstructed_rnn_long.pkl' and 'rnn_autoencoder_model.keras'
-url_rnn_data = 'https://drive.google.com/uc?id=17Mp19o6-dvUNv0DGS5IVR-t-g5xNIlX4'  # Corrected URL for direct download
-output_rnn_data = 'reconstructed_rnn_long.pkl'
+# Google Drive file link for 'autoencoder_model_and_data.pkl'
+url_rnn_data_and_model = 'https://drive.google.com/file/d/1nHZ7Ir1FwIWpB2Un12jRY6W8IFmJllat'  # Replace with your file ID
+output_rnn_data_and_model = 'autoencoder_model_and_data.pkl'
 
-url_rnn_model = 'https://drive.google.com/uc?id=1--e19kUVXNZ7HnV53Xbj1hXyJtg9_Iak'  # Corrected URL for direct download
-output_rnn_model = 'rnn_autoencoder_model.keras'
+# Download the .pkl file containing both model and reconstructed data
+gdown.download(url_rnn_data_and_model, output_rnn_data_and_model, quiet=False)
 
-# Download the model and data
-gdown.download(url_rnn_data, output_rnn_data, quiet=False)
-gdown.download(url_rnn_model, output_rnn_model, quiet=False)
-
-# Load the reconstructed data (using pandas for .pkl)
+# Load the model and reconstructed data from the .pkl file
 try:
-    reconstructed_rnn_long = pd.read_pickle(output_rnn_data)
-    st.write("Reconstructed data loaded successfully.")
+    with open(output_rnn_data_and_model, 'rb') as f:
+        loaded_data = pickle.load(f)
+        rnn_autoencoder_model = loaded_data['model']
+        reconstructed_rnn_long = loaded_data['reconstructed_ratings']
+    st.write("Model and reconstructed data loaded successfully.")
 except Exception as e:
-    st.write(f"Error loading reconstructed data: {e}")
-
-# Load the RNN Autoencoder model
-try:
-    rnn_autoencoder_model = load_model(output_rnn_model)
-    st.write("RNN Autoencoder model loaded successfully.")
-except Exception as e:
-    st.write(f"Error loading RNN Autoencoder model: {e}")
+    st.write(f"Error loading model and data: {e}")
 
 # Function to recommend books for RNN model
 def recommend_books_rnn(user_id, num_recommendations=5, threshold=5):
