@@ -43,6 +43,9 @@ def recommend_books_rnn(user_id, num_recommendations=5, threshold=5):
 st.title('Book Recommendation System (RNN Autoencoder)')
 st.write('Enter a User ID to get book recommendations.')
 st.write(reconstructed_rnn_long.columns)
+st.write(f"Checking if User ID {user_id_input} exists...")
+st.write(reconstructed_rnn_long[reconstructed_rnn_long['User-ID'] == user_id_input])
+
 user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 
 # Button to trigger recommendations
