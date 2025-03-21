@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import gdown
 from tensorflow.keras.models import load_model
+import tensorflow as tf 
 
 # Google Drive file links for 'reconstructed_rnn_long.pkl' and 'rnn_autoencoder_model.keras'25517290804
 url_rnn_data = 'https://drive.google.com/file/d/17Mp19o6-dvUNv0DGS5IVR-t-g5xNIlX4/view?usp=sharing'  # Replace with actual file ID for 'reconstructed_rnn_long.pkl'
