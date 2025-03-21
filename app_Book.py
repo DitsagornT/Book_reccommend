@@ -5,7 +5,7 @@ import pickle
 from tensorflow.keras.models import load_model
 
 # Google Drive file link for 'autoencoder_model_and_data.pkl'
-url_rnn_data_and_model = 'https://drive.google.com/file/d/1nHZ7Ir1FwIWpB2Un12jRY6W8IFmJllat'  # Replace with your file ID
+url_rnn_data_and_model = 'https://drive.google.com/uc?export=download&id=1nHZ7Ir1FwIWpB2Un12jRY6W8IFmJllat'  # Replace with your file ID
 output_rnn_data_and_model = 'autoencoder_model_and_data.pkl'
 
 # Download the .pkl file containing both model and reconstructed data
