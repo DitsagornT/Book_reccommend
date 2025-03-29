@@ -37,7 +37,7 @@ def recommend_books_rnn(user_id, num_recommendations=5):
         return f"User ID {user_id} not found in the dataset."
 
 # Streamlit user interface
-st.title('Book Recommendation System (RNN Autoencoder)')
+st.header('Book Recommendation System (RNN Autoencoder)')
 st.write('Enter a User ID to get book recommendations.')
 
 user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
