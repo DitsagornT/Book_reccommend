@@ -74,4 +74,23 @@ if st.session_state.mode == 'book_input':
     st.subheader("🎯 Recommend based on a book you like")
 
     selected_book = st.selectbox("Select a book:", sorted(book_title_to_index.keys()))
-    rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10_
+    rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
+
+    if st.button("Recommend Similar Books"):
+        user_input_vector = np.full((1, input_dim), -1.0)
+        user_input_vector[0, book_title_to_index[selected_book]] = rating_input
+
+        predicted_ratings = autoencoder_b_5.predict(user_input_vector, training=False)
+        predicted_df = pd.DataFrame({
+            'Book-Title': book_titles,
+            'Predicted-Rating': predicted_ratings[0]
+        })
+
+        predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
+        top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
+
+        st.success("Recommended books based on your favorite:")
+        st.dataframe(top_books)
+
+    if st.button("Back to User ID"):
+        st.session_state.mode = 'user_id'
