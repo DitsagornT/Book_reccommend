@@ -63,31 +63,31 @@ if st.button('Recommend Books'):
             selected_book = st.selectbox("Select a book you like:", book_list)
             rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
 
-           if st.button("Recommend Similar Books"):
-              # ✅ สร้าง input vector
-              user_input_vector = np.full((1, input_dim), -1.0)  # ใช้ค่า -1 แทน missing
+            if st.button("Recommend Similar Books"):
+               # ✅ สร้าง input vector
+               user_input_vector = np.full((1, input_dim), -1.0)  # ใช้ค่า -1 แทน missing
 
-              # ใส่คะแนนที่ผู้ใช้เลือก
-              if selected_book in book_title_to_index:
-                  index = book_title_to_index[selected_book]
-                  user_input_vector[0, index] = rating_input
+               # ใส่คะแนนที่ผู้ใช้เลือก
+               if selected_book in book_title_to_index:
+                   index = book_title_to_index[selected_book]
+                   user_input_vector[0, index] = rating_input
 
-                  # ✅ ทำนายด้วย autoencoder
-                  predicted_ratings = autoencoder_b_5.predict(user_input_vector)
+                   # ✅ ทำนายด้วย autoencoder
+                   predicted_ratings = autoencoder_b_5.predict(user_input_vector)
 
-                  # สร้าง DataFrame แสดงผล
-                  predicted_df = pd.DataFrame({
-                            'Book-Title': book_titles,
-                            'Predicted-Rating': predicted_ratings[0]
-                  })
+                   # สร้าง DataFrame แสดงผล
+                   predicted_df = pd.DataFrame({
+                             'Book-Title': book_titles,
+                             'Predicted-Rating': predicted_ratings[0]
+                   })
 
-                  # ลบหนังสือที่ผู้ใช้เลือกออก
-                  predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
+                   # ลบหนังสือที่ผู้ใช้เลือกออก
+                   predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
 
-                  # แสดงผลลัพธ์
-                  top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
-                  st.write("📚 Recommended books based on your favorite:")
-                  st.dataframe(top_books)
-              else:
-                  st.warning("❌ Book not found in model mapping.")
+                   # แสดงผลลัพธ์
+                   top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
+                   st.write("Recommended books based on your favorite:")
+                   st.dataframe(top_books)
+               else:
+                   st.warning("Book not found in model mapping.")
 
