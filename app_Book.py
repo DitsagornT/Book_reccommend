@@ -7,7 +7,7 @@ import tensorflow as tf
 import random
 import os
 
-# ตั้งค่า seed เพื่อให้ผลลัพธ์เหมือนเดิมทุกครั้ง
+# ตั้ง seed เพื่อให้ค่าคงที่
 def set_seed(seed=42):
     os.environ['PYTHONHASHSEED'] = str(seed)
     random.seed(seed)
@@ -16,75 +16,62 @@ def set_seed(seed=42):
 
 set_seed(42)
 
-# Google Drive file link for 'autoencoder_model_and_data.pkl'
+# Download model (ถ้ายังไม่มี)
 url_model = 'https://drive.google.com/uc?export=download&id=1cZzzNkWulSmLTHfgU5Dc1VwcjMEJMowc'
 output_model = 'model_b_5_nan_result.pk'
-
-# Download the .pkl file containing both model and data
 if not os.path.exists(output_model):
     gdown.download(url_model, output_model, quiet=False)
 
 with open(output_model, 'rb') as f:
     loaded_data = pickle.load(f)
 
-# ดึงค่าจาก dictionary ที่โหลดมา
+# Load data
 autoencoder_b_5 = loaded_data['autoencoder_b_5']
-history_b_5_per = loaded_data['history_b_5_per']
 merged_df_b_5_per = loaded_data['merged_df_b_5_per']
 df_result_filter_missing_b_5_per = loaded_data['df_result_filter_missing_b_5_per']
-x_predicted_b_5_per = loaded_data['x_predicted_b_5_per']
 
-st.title('📚 Book Recommendation System')
-st.write("โหลดข้อมูลทั้งหมดเรียบร้อยแล้ว")
-
-# สร้าง mapping
 book_titles = merged_df_b_5_per['Book-Title'].unique()
 book_title_to_index = {title: idx for idx, title in enumerate(book_titles)}
-index_to_book_title = {idx: title for title, idx in book_title_to_index.items()}
 input_dim = len(book_titles)
 
-# ฟังก์ชันแสดง Top 5 หนังสือที่แนะนำสำหรับ User
-def print_top_books_by_user(user_id, df):
-    user_data = df[df['User-ID'] == user_id]
-    top_books = user_data[['Book-Title', 'Predict-Rating']].sort_values(by='Predict-Rating', ascending=False).head(5)
-    return top_books
+st.title('📚 Book Recommendation System')
 
-# UI
-st.subheader('🔍 Get book recommendations by User ID')
-user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
+# ฟังก์ชันช่วยแนะนำจาก user id
+def get_top_books_by_user(user_id):
+    df_user = df_result_filter_missing_b_5_per[df_result_filter_missing_b_5_per['User-ID'] == user_id]
+    return df_user[['Book-Title', 'Predict-Rating']].sort_values(by='Predict-Rating', ascending=False).head(5)
 
-if st.button('Recommend Books'):
-    recommended_books = print_top_books_by_user(user_id_input, df_result_filter_missing_b_5_per)
+# ใช้ session_state เก็บสถานะ
+if 'mode' not in st.session_state:
+    st.session_state.mode = 'user_id'  # default
 
-    if not recommended_books.empty:
-        st.success(f"Top 5 recommended books for User {user_id_input}:")
-        st.dataframe(recommended_books)
-    else:
-        st.warning(f"User-ID {user_id_input} not found in the dataset.")
-        st.markdown("### 🎯 Recommend based on a book you like")
+if 'recommended_books' not in st.session_state:
+    st.session_state.recommended_books = None
 
-        book_list = sorted(book_title_to_index.keys())
-        selected_book = st.selectbox("Select a book you like:", book_list)
-        rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
+# ส่วนที่ 1: แนะนำจาก User ID
+if st.session_state.mode == 'user_id':
+    st.subheader('🔍 Get book recommendations by User ID')
+    user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 
-        if st.button("Recommend Similar Books"):
-            user_input_vector = np.full((1, input_dim), -1.0)
-            if selected_book in book_title_to_index:
-                index = book_title_to_index[selected_book]
-                user_input_vector[0, index] = rating_input
+    if st.button('Recommend Books'):
+        top_books = get_top_books_by_user(user_id_input)
+        if not top_books.empty:
+            st.session_state.recommended_books = top_books
+            st.session_state.mode = 'show_user_result'
+        else:
+            st.warning(f"User-ID {user_id_input} not found in dataset.")
+            st.session_state.mode = 'book_input'
 
-                # ใช้ predict แบบ deterministic
-                predicted_ratings = autoencoder_b_5.predict(user_input_vector, training=False)
+# ส่วนที่ 2: แสดงผลลัพธ์ของ User ID
+if st.session_state.mode == 'show_user_result':
+    st.success("Recommended books for your User ID:")
+    st.dataframe(st.session_state.recommended_books)
+    if st.button("Try with a book instead"):
+        st.session_state.mode = 'book_input'
 
-                predicted_df = pd.DataFrame({
-                    'Book-Title': book_titles,
-                    'Predicted-Rating': predicted_ratings[0]
-                })
+# ส่วนที่ 3: แนะนำจากหนังสือที่ชอบ
+if st.session_state.mode == 'book_input':
+    st.subheader("🎯 Recommend based on a book you like")
 
-                predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
-                top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
-
-                st.success("Books you may like based on your favorite:")
-                st.dataframe(top_books)
-            else:
-                st.error("Selected book not found in model mapping.")
+    selected_book = st.selectbox("Select a book:", sorted(book_title_to_index.keys()))
+    rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10_
