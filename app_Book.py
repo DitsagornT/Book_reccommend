@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 import numpy as np 
 # Google Drive file link for 'autoencoder_model_and_data.pkl'
 url_model = 'https://drive.google.com/uc?export=download&id=1cZzzNkWulSmLTHfgU5Dc1VwcjMEJMowc'  # Replace with your file ID
-output_model = 'model_b_5_nan_result.pk'
+output_model = 'model_b_5_nan_result.pkl'
 
 # Download the .pkl file containing both model and data
 gdown.download(url_model, output_model, quiet=False)
