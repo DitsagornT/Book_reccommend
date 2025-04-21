@@ -39,39 +39,37 @@ def print_top_books_by_user(user_id, df):
     
     return top_books
 
-# Streamlit UI
 st.header('Book Recommendation System')
 st.write('Enter a User ID to get book recommendations.')
 
 user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 
-# เช็คว่ามีปุ่มถูกกดหรือยัง ถ้ายังให้สร้างใน session_state
-if 'show_fallback_input' not in st.session_state:
-    st.session_state.show_fallback_input = False
+# ตรวจสอบว่าผู้ใช้มีอยู่ใน merged_df หรือไม่
+user_exists = user_id_input in merged_df_b_5_per['User-ID'].values
 
-# กดปุ่มหลัก
+# กดปุ่มเพื่อเริ่มแนะนำ
 if st.button('Recommend Books'):
-    if user_id_input:
+    if user_exists:
         recommended_books = print_top_books_by_user(user_id_input, df_result_filter_missing_b_5_per)
 
         if not recommended_books.empty:
             st.write(f"Recommended books for User {user_id_input}:")
             st.dataframe(recommended_books)
-            st.session_state.show_fallback_input = False
         else:
-            st.session_state.show_fallback_input = True
+            st.write(f"User {user_id_input} exists, but no predictions available.")
+            st.write("Let’s recommend books based on your preference.")
+    else:
+        st.write("User-ID not found in the data.")
+        st.write("You can still get recommendations based on a book you like.")
 
-# ถ้า user id ไม่พบ ให้แสดง UI สำหรับ fallback โดยไม่โหลดใหม่
-if st.session_state.show_fallback_input:
-    st.write("User-ID not found in the data.")
-    st.write("You can still get recommendations based on a book you like.")
-
+    # ส่วน fallback recommendation
     book_list = sorted(book_title_to_index.keys())
-    selected_book = st.selectbox("Select a book you like:", book_list, key="fallback_book")
-    rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5, key="fallback_rating")
+    selected_book = st.selectbox("Select a book you like:", book_list)
+    rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
 
     if st.button("Recommend Similar Books"):
         user_input_vector = np.full((1, input_dim), -1.0)
+
         if selected_book in book_title_to_index:
             index = book_title_to_index[selected_book]
             user_input_vector[0, index] = rating_input
@@ -86,7 +84,7 @@ if st.session_state.show_fallback_input:
             predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
             top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
 
-            st.write("📚 Recommended books based on your favorite:")
+            st.write("Recommended books based on your favorite:")
             st.dataframe(top_books)
         else:
             st.warning("Book not found in model mapping.")
