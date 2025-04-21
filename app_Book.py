@@ -21,7 +21,12 @@ merged_df_b_5_per = loaded_data['merged_df_b_5_per']
 df_result_filter_missing_b_5_per = loaded_data['df_result_filter_missing_b_5_per']
 x_predicted_b_5_per = loaded_data['x_predicted_b_5_per']
 
-st.write("✅ โหลดข้อมูลทั้งหมดเรียบร้อยแล้ว")
+st.write("โหลดข้อมูลทั้งหมดเรียบร้อยแล้ว")
+# สร้าง mapping index <-> book title
+book_titles = merged_df_b_5_per['Book-Title'].unique()
+book_title_to_index = {title: idx for idx, title in enumerate(book_titles)}
+index_to_book_title = {idx: title for title, idx in book_title_to_index.items()}
+input_dim = len(book_titles)  # input vector dimension
 
 
 # ฟังก์ชันแสดง Top 5 หนังสือที่แนะนำสำหรับ User
@@ -54,19 +59,36 @@ if st.button('Recommend Books'):
             st.write("User-ID not found in the data.")
             st.write("🔍 You can still get recommendations based on a book you like.")
     
-            book_list = df_result_filter_missing_b_5_per['Book-Title'].unique()
-            selected_book = st.selectbox("Select a book you like:", sorted(book_list))
+            book_list = sorted(book_title_to_index.keys())
+            selected_book = st.selectbox("Select a book you like:", book_list)
             rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
 
             if st.button("Recommend Similar Books"):
-            # หา user อื่นที่เคยให้คะแนนสูงกับหนังสือที่เลือก
-               similar_books_df = df_result_filter_missing_b_5_per[
-               (df_result_filter_missing_b_5_per['Book-Title'] != selected_book)
-               ]
+            # สร้าง input vector (default = -1 แสดงว่า missing)
+               user_input_vector = np.full((1, input_dim), -1.0)
 
-               # เรียงตาม Predict-Rating สูงสุด
-               top_recommendations = similar_books_df.sort_values(by='Predict-Rating', ascending=False).head(5)
+            # ใส่คะแนนของหนังสือที่เลือกลงในตำแหน่งที่ถูกต้อง
+            if selected_book in book_title_to_index:
+                index = book_title_to_index[selected_book]
+                user_input_vector[0, index] = rating_input
 
-               st.write("Recommended books you might also enjoy:")
-               st.dataframe(top_recommendations[['Book-Title', 'Predict-Rating']])
+                # ให้ autoencoder ทำนาย
+                predicted_ratings = autoencoder_b_5.predict(user_input_vector)
+
+                # สร้าง DataFrame แสดงผล
+                predicted_df = pd.DataFrame({
+                    'Book-Title': book_titles,
+                    'Predicted-Rating': predicted_ratings[0]
+                })
+
+                # ตัดหนังสือที่ผู้ใช้เลือกออก
+                predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
+
+                # เรียงลำดับและแสดง Top 5
+                top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
+
+                st.write("Recommended books based on your favorite:")
+                st.dataframe(top_books)
+            else:
+                st.warning("Book not found in model mapping.")
 
