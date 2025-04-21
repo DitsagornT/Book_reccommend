@@ -3,7 +3,7 @@ import pandas as pd
 import gdown
 import pickle
 from tensorflow.keras.models import load_model
-
+import numpy as np 
 # Google Drive file link for 'autoencoder_model_and_data.pkl'
 url_model = 'https://drive.google.com/uc?export=download&id=1cZzzNkWulSmLTHfgU5Dc1VwcjMEJMowc'  # Replace with your file ID
 output_model = 'model_b_5_nan_result.pk'
@@ -22,11 +22,11 @@ df_result_filter_missing_b_5_per = loaded_data['df_result_filter_missing_b_5_per
 x_predicted_b_5_per = loaded_data['x_predicted_b_5_per']
 
 st.write("โหลดข้อมูลทั้งหมดเรียบร้อยแล้ว")
-# สร้าง mapping index <-> book title
+# สร้าง mapping ถ้ายังไม่ได้ทำ
 book_titles = merged_df_b_5_per['Book-Title'].unique()
 book_title_to_index = {title: idx for idx, title in enumerate(book_titles)}
 index_to_book_title = {idx: title for title, idx in book_title_to_index.items()}
-input_dim = len(book_titles)  # input vector dimension
+input_dim = len(book_titles)  # จำนวนหนังสือทั้งหมด
 
 
 # ฟังก์ชันแสดง Top 5 หนังสือที่แนะนำสำหรับ User
@@ -57,38 +57,37 @@ if st.button('Recommend Books'):
             #st.write(f"User-ID not found {user_id_input}")
         else:
             st.write("User-ID not found in the data.")
-            st.write("🔍 You can still get recommendations based on a book you like.")
-    
+            st.write("You can still get recommendations based on a book you like.")
+
             book_list = sorted(book_title_to_index.keys())
             selected_book = st.selectbox("Select a book you like:", book_list)
             rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
 
-            if st.button("Recommend Similar Books"):
-            # สร้าง input vector (default = -1 แสดงว่า missing)
-               user_input_vector = np.full((1, input_dim), -1.0)
+           if st.button("Recommend Similar Books"):
+              # ✅ สร้าง input vector
+              user_input_vector = np.full((1, input_dim), -1.0)  # ใช้ค่า -1 แทน missing
 
-            # ใส่คะแนนของหนังสือที่เลือกลงในตำแหน่งที่ถูกต้อง
-            if selected_book in book_title_to_index:
-                index = book_title_to_index[selected_book]
-                user_input_vector[0, index] = rating_input
+              # ใส่คะแนนที่ผู้ใช้เลือก
+              if selected_book in book_title_to_index:
+                  index = book_title_to_index[selected_book]
+                  user_input_vector[0, index] = rating_input
 
-                # ให้ autoencoder ทำนาย
-                predicted_ratings = autoencoder_b_5.predict(user_input_vector)
+                  # ✅ ทำนายด้วย autoencoder
+                  predicted_ratings = autoencoder_b_5.predict(user_input_vector)
 
-                # สร้าง DataFrame แสดงผล
-                predicted_df = pd.DataFrame({
-                    'Book-Title': book_titles,
-                    'Predicted-Rating': predicted_ratings[0]
-                })
+                  # สร้าง DataFrame แสดงผล
+                  predicted_df = pd.DataFrame({
+                            'Book-Title': book_titles,
+                            'Predicted-Rating': predicted_ratings[0]
+                  })
 
-                # ตัดหนังสือที่ผู้ใช้เลือกออก
-                predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
+                  # ลบหนังสือที่ผู้ใช้เลือกออก
+                  predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
 
-                # เรียงลำดับและแสดง Top 5
-                top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
-
-                st.write("Recommended books based on your favorite:")
-                st.dataframe(top_books)
-            else:
-                st.warning("Book not found in model mapping.")
+                  # แสดงผลลัพธ์
+                  top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
+                  st.write("📚 Recommended books based on your favorite:")
+                  st.dataframe(top_books)
+              else:
+                  st.warning("❌ Book not found in model mapping.")
 
