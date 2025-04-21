@@ -58,12 +58,14 @@ if st.session_state.mode == 'user_id':
     user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 
     if st.button('Recommend Books'):
+        st.session_state.user_result = None  # เคลียร์ของเดิมก่อน
+        st.session_state.book_result = None
         top_books = get_top_books_by_user(user_id_input)
         if not top_books.empty:
             st.session_state.user_result = top_books
             st.session_state.mode = 'user_result'
         else:
-            st.warning(f"User-ID {user_id_input} not found. Try recommending from your favorite book.")
+            st.warning(f"User-ID {user_id_input} not found.")
             st.session_state.mode = 'book_input'
 
 # แสดงผลลัพธ์จาก user id
@@ -84,8 +86,8 @@ if st.session_state.mode == 'book_input':
     if st.button("Recommend Similar Books"):
         user_input_vector = np.full((1, input_dim), -1.0)
         user_input_vector[0, book_title_to_index[selected_book]] = rating_input
-        predicted_ratings = autoencoder_b_5.predict(user_input_vector, training=False)
-
+        user_input_vector = user_input_vector.astype(np.float32)
+        predicted_ratings = autoencoder_b_5.predict(user_input_vector, verbose=0)
         predicted_df = pd.DataFrame({
             'Book-Title': book_titles,
             'Predicted-Rating': predicted_ratings[0]
