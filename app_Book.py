@@ -48,5 +48,25 @@ if st.button('Recommend Books'):
         if not recommended_books.empty:
             st.write(f"Recommended books for User {user_id_input}:")
             st.dataframe(recommended_books)
+        #else:
+            #st.write(f"User-ID not found {user_id_input}")
         else:
-            st.write(f"User-ID not found {user_id_input}")
+            st.write("User-ID not found in the data.")
+            st.write("🔍 You can still get recommendations based on a book you like.")
+    
+            book_list = df_result_filter_missing_b_5_per['Book-Title'].unique()
+            selected_book = st.selectbox("Select a book you like:", sorted(book_list))
+            rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
+
+            if st.button("Recommend Similar Books"):
+            # หา user อื่นที่เคยให้คะแนนสูงกับหนังสือที่เลือก
+               similar_books_df = df_result_filter_missing_b_5_per[
+               (df_result_filter_missing_b_5_per['Book-Title'] != selected_book)
+               ]
+
+               # เรียงตาม Predict-Rating สูงสุด
+               top_recommendations = similar_books_df.sort_values(by='Predict-Rating', ascending=False).head(5)
+
+               st.write("Recommended books you might also enjoy:")
+               st.dataframe(top_recommendations[['Book-Title', 'Predict-Rating']])
+
