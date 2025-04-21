@@ -45,49 +45,48 @@ st.write('Enter a User ID to get book recommendations.')
 
 user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 
-# ปุ่มเพื่อแสดงการแนะนำ
+# เช็คว่ามีปุ่มถูกกดหรือยัง ถ้ายังให้สร้างใน session_state
+if 'show_fallback_input' not in st.session_state:
+    st.session_state.show_fallback_input = False
+
+# กดปุ่มหลัก
 if st.button('Recommend Books'):
     if user_id_input:
         recommended_books = print_top_books_by_user(user_id_input, df_result_filter_missing_b_5_per)
-        
+
         if not recommended_books.empty:
             st.write(f"Recommended books for User {user_id_input}:")
             st.dataframe(recommended_books)
-        #else:
-            #st.write(f"User-ID not found {user_id_input}")
+            st.session_state.show_fallback_input = False
         else:
-            st.write("User-ID not found in the data.")
-            st.write("You can still get recommendations based on a book you like.")
+            st.session_state.show_fallback_input = True
 
-            book_list = sorted(book_title_to_index.keys())
-            selected_book = st.selectbox("Select a book you like:", book_list)
-            rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
+# ถ้า user id ไม่พบ ให้แสดง UI สำหรับ fallback โดยไม่โหลดใหม่
+if st.session_state.show_fallback_input:
+    st.write("User-ID not found in the data.")
+    st.write("You can still get recommendations based on a book you like.")
 
-            if st.button("Recommend Similar Books"):
-               # ✅ สร้าง input vector
-               user_input_vector = np.full((1, input_dim), -1.0)  # ใช้ค่า -1 แทน missing
+    book_list = sorted(book_title_to_index.keys())
+    selected_book = st.selectbox("Select a book you like:", book_list, key="fallback_book")
+    rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5, key="fallback_rating")
 
-               # ใส่คะแนนที่ผู้ใช้เลือก
-               if selected_book in book_title_to_index:
-                   index = book_title_to_index[selected_book]
-                   user_input_vector[0, index] = rating_input
+    if st.button("Recommend Similar Books"):
+        user_input_vector = np.full((1, input_dim), -1.0)
+        if selected_book in book_title_to_index:
+            index = book_title_to_index[selected_book]
+            user_input_vector[0, index] = rating_input
 
-                   # ✅ ทำนายด้วย autoencoder
-                   predicted_ratings = autoencoder_b_5.predict(user_input_vector)
+            predicted_ratings = autoencoder_b_5.predict(user_input_vector)
 
-                   # สร้าง DataFrame แสดงผล
-                   predicted_df = pd.DataFrame({
-                             'Book-Title': book_titles,
-                             'Predicted-Rating': predicted_ratings[0]
-                   })
+            predicted_df = pd.DataFrame({
+                'Book-Title': book_titles,
+                'Predicted-Rating': predicted_ratings[0]
+            })
 
-                   # ลบหนังสือที่ผู้ใช้เลือกออก
-                   predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
+            predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
+            top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
 
-                   # แสดงผลลัพธ์
-                   top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
-                   st.write("Recommended books based on your favorite:")
-                   st.dataframe(top_books)
-               else:
-                   st.warning("Book not found in model mapping.")
-
+            st.write("📚 Recommended books based on your favorite:")
+            st.dataframe(top_books)
+        else:
+            st.warning("Book not found in model mapping.")
