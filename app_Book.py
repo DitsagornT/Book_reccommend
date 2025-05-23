@@ -22,7 +22,7 @@ merged_df_b_5_per = loaded_data['merged_df_b_5_per']
 df_result_filter_missing_b_5_per = loaded_data['df_result_filter_missing_b_5_per']
 x_predicted_b_5_per = loaded_data['x_predicted_b_5_per']
 
-st.write("✅ โหลดข้อมูลเรียบร้อยแล้ว")
+st.write("โหลดข้อมูลเรียบร้อยแล้ว")
 
 # สร้าง mapping
 book_titles = merged_df_b_5_per['Book-Title'].unique()
@@ -36,33 +36,33 @@ def print_top_books_by_user(user_id, df):
     return top_books
 
 # Header
-st.header('📚 Book Recommendation System')
+st.header('Book Recommendation System')
 
 # รักษาสถานะ
 if 'show_book_select' not in st.session_state:
     st.session_state['show_book_select'] = False
 
-user_id_input = st.number_input('🔢 Enter User ID:', min_value=1, step=1)
+user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 
-if st.button('🎯 Recommend Books'):
+if st.button('Recommend Books'):
     if user_id_input in df_result_filter_missing_b_5_per['User-ID'].values:
         recommended_books = print_top_books_by_user(user_id_input, df_result_filter_missing_b_5_per)
         st.write(f"📖 Recommended books for User {user_id_input}:")
         st.dataframe(recommended_books)
         st.session_state['show_book_select'] = False  # ปิดส่วน book select ถ้ามี user ID แล้ว
     else:
-        st.warning("❌ User ID not found in the dataset.")
+        st.warning("User ID not found in the dataset.")
         st.session_state['show_book_select'] = True  # แสดงตัวเลือกจากหนังสือที่ชอบ
 
 # หากไม่พบ user id และต้องแนะนำจากหนังสือที่ชอบ
 if st.session_state['show_book_select']:
-    st.write("🔍 ลองเลือกหนังสือที่คุณชอบ เพื่อให้โมเดลแนะนำเล่มอื่นให้")
+    st.write("ลองเลือกหนังสือที่คุณชอบ เพื่อให้โมเดลแนะนำเล่มอื่นให้")
 
     book_list = sorted(book_title_to_index.keys())
-    selected_book = st.selectbox("👍 Select a book you like:", book_list)
-    rating_input = st.slider("⭐ Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
+    selected_book = st.selectbox("Select a book you like:", book_list)
+    rating_input = st.slider("Rate this book (1-10):", min_value=1.0, max_value=10.0, step=0.5)
 
-    if st.button("✨ Recommend Similar Books"):
+    if st.button("Recommend Similar Books"):
         user_input_vector = np.full((1, input_dim), -1.0)
         index = book_title_to_index.get(selected_book, None)
         if index is not None:
@@ -74,7 +74,7 @@ if st.session_state['show_book_select']:
             })
             predicted_df = predicted_df[predicted_df['Book-Title'] != selected_book]
             top_books = predicted_df.sort_values(by='Predicted-Rating', ascending=False).head(5)
-            st.write("📚 Recommended books based on your favorite:")
+            st.write("Recommended books based on your favorite:")
             st.dataframe(top_books)
         else:
-            st.warning("❌ Book not found in model mapping.")
+            st.warning("Book not found in model mapping.")
