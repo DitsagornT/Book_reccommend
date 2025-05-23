@@ -47,7 +47,7 @@ user_id_input = st.number_input('Enter User ID:', min_value=1, step=1)
 if st.button('Recommend Books'):
     if user_id_input in df_result_filter_missing_b_5_per['User-ID'].values:
         recommended_books = print_top_books_by_user(user_id_input, df_result_filter_missing_b_5_per)
-        st.write(f"📖 Recommended books for User {user_id_input}:")
+        st.write(f"Recommended books for User {user_id_input}:")
         st.dataframe(recommended_books)
         st.session_state['show_book_select'] = False  # ปิดส่วน book select ถ้ามี user ID แล้ว
     else:
