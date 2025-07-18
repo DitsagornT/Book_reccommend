@@ -7,21 +7,15 @@ It utilizes **Autoencoder** models to recommend books based on user rating patte
 
 ---
 
-## Project Objective
+## Libraries
 
-To design and implement a book recommendation engine using deep learning (Autoencoder) and provide users with personalized recommendations based on collaborative filtering techniques.
-
----
-
-##  Technologies Used
-
-| Category      | Tools/Frameworks |
-|---------------|------------------|
-| Programming   | Python 3.x       |
-| ML/DL         | TensorFlow, Keras, Scikit-learn |
-| Visualization | Streamlit        |
-| Deployment    | Streamlit Cloud, GitHub |
-| Data          | Book-Crossing Dataset (Kaggle) |
+- streamlit
+- tensorflow
+- joblib
+- pandas
+- numpy
+- scikit-learn
+- gdown
 
 ---
 
@@ -29,8 +23,12 @@ To design and implement a book recommendation engine using deep learning (Autoen
 
 | Metric              | Score     |
 |---------------------|-----------|
-| RMSE                | 0.39      |
-| R² Score            | 0.88      |
-| Cosine Similarity   | 0.78      |
+| MAE                 | 0.0873    |
+| RMSE                | 0.39650   |
+| R² Score            | 0.8838    |
+| Cosine Similarity   | 0.9881    |
+
+---
+Full Project Report (PDF): [View on Google Drive](https://drive.google.com/file/d/1rmz7_ZnIlig-xQeB_-CxOeG8zJqcU551/view?usp=drive_link)
 
 ---
