@@ -24,7 +24,7 @@ It utilizes **Autoencoder** models to recommend books based on user rating patte
 | Metric              | Score     |
 |---------------------|-----------|
 | MAE                 | 0.0873    |
-| RMSE                | 0.39650   |
+| RMSE                | 0.3965    |
 | R² Score            | 0.8838    |
 | Cosine Similarity   | 0.9881    |
 
